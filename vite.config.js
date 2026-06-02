@@ -7,4 +7,5 @@ export default defineConfig({
     react(),
     tailwindcss(),
   ],
+  base: '/cantinho-da-vih/', // <-- A linha certa fica aqui, depois do fechamento dos plugins!
 })
