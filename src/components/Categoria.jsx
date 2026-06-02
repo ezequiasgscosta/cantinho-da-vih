@@ -16,7 +16,7 @@ export default function Categoria() {
             try {
                 // Conectamos no Supabase, pegamos a tabela "Bolos" e selecionamos todas as colunas (*)
                 const { data, error } = await supabase
-                    .from("Bolos") 
+                    .from("Produtos") 
                     .select("*");
 
                 // Se o banco de dados responder com algum erro, joga o erro direto para o bloco 'catch' abaixo
