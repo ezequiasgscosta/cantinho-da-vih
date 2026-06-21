@@ -1,78 +1,99 @@
-"use client"
-import Image from "next/image"
-import ImageIlustrativa from "../../public/window.svg"
-import { supabase } from "../../lib/supabase"
-import { useEffect, useState } from "react"
+"use client";
+
+import Image from "next/image";
+import ImageIlustrativa from "@/public/window.svg";
+import { supabase } from "../../lib/supabase";
+import { useEffect, useState } from "react";
+
+interface Categoria {
+  id: number;
+  nome: string;
+}
+
+interface Bolo {
+  id: number;
+  nome: string;
+  preco: number;
+  descricao: string;
+  categorias?: {
+    id: number;
+    nome: string}
+}
 
 export default function Produtos() {
-    const [bolos, setBolos] = useState<bolo[]>([]);
-    useEffect(() => {
-        async function buscarproduto() {
-            const { data, error } = await supabase.from("bolo").select("*")
+  const [bolos, setBolos] = useState<Bolo[]>([]);
+  const [categorias, setCategorias] = useState<Categoria[]>([]);
 
-            if (error) {
-                console.error("erro ao conectar", error.message)
-            } else {
-                setBolos(data)
-                console.log("conectado com sucesso", data)
-            }
+  useEffect(() => {
+    async function buscarProdutos() {
+      const { data, error } = await supabase
+        .from("bolo")
+        .select(`
+          id,
+          nome,
+          preco,
+          descricao,
+          categorias(
+          id,
+          nome
+          )
+          `);
 
-        }
-        buscarproduto()
-    },
-        []
-    )
-
-    //falta criar a tabela aqui 
-    //e puxar do banco de dados
-
-    interface categorias {
-        id:number
-        nome:string
+      if (error) {
+        console.error("Erro ao conectar:", error.message);
+      } else {
+        setBolos(data || []);
+        console.log("Conectado com sucesso:", data);
+      }
     }
 
-      interface bolo{
-            id:number
-            nome:string
-            preco:number
-            descricao:string
-        }
+    async function buscarCategorias() {
+      const { data, error } = await supabase
+        .from("categorias")
+        .select("*");
 
-    return (
+      if (error) {
+        console.error("Erro ao buscar categorias:", error.message);
+      } else {
+        setCategorias(data || []);
+        console.log("Categorias carregadas: hehehehe", data);
+      }
+    }
 
-      
+    buscarProdutos();
+    buscarCategorias();
+  }, []);
 
-        <div className="border w-full h-screen  ">
-            <h1 className="">Bolos</h1>
-            {bolos.map((bolo) => (
+  return (
+    <div className="w-full min-h-screen border p-4">
+      <h1 className="text-3xl font-bold mb-6">Bolos</h1>
 
-                <div key={bolo.id}
-                    className="border border-black/10 h-32 items-center  grid
-                                grid-cols-2
-                                sm:grid-cols-2
-                                md:grid-cols-3
-                                lg:grid-cols-4
-                                xl:grid-cols-5
-                                gap-4 text-center
-                                ">
-                                    
+     
 
-                    <div className="ml-6">
-                    <h2 className="text-bold text-xl text-center">{bolo.nome}</h2>
-                       <h2>{bolo.descricao}</h2>
-                    <h1 className="text-lg font-medium">Preço ${bolo.preco}</h1> 
-                    </div>
-                    
+      <div className="grid gap-4">
+        {bolos.map((bolo) => (
+          <div
+            key={bolo.id}
+            className="border border-black/10 rounded-lg p-4 flex items-center justify-between"
+          >
+            <div>
+              <h2 className="font-bold text-xl">{bolo.nome}</h2>
+              <p>{bolo.descricao}</p>
+              <p className="text-lg font-medium">
+                Preço: R$ {bolo.preco}
+              </p>
+              <p>{bolo.categorias?.nome}</p>
+            </div>
 
-                    <Image className="m-auto"
-                        src={ImageIlustrativa}
-                        alt="bolo de pote"
-                        width={100}
-                        height={90}
-                    />
-                </div>
-            ))
-            }
-        </div>
-    )
+            <Image
+              src={ImageIlustrativa}
+              alt={bolo.nome}
+              width={100}
+              height={100}
+            />
+          </div>
+        ))}
+      </div>
+    </div>
+  );
 }
