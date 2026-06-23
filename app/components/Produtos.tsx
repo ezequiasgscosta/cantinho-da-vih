@@ -4,6 +4,9 @@ import Image from "next/image";
 import ImageIlustrativa from "@/public/window.svg";
 import { supabase } from "../../lib/supabase";
 import { useEffect, useState } from "react";
+import { useCarrinho } from "../store/useCarrinho"; 
+
+// 1. IMPORTANTE: Importe o seu hook do Zustand aqui (ajuste o caminho do arquivo)
 
 interface Categoria {
   id: number;
@@ -21,6 +24,12 @@ interface Bolo {
 export default function Produtos() {
   const [bolos, setBolos] = useState<Bolo[]>([]);
   const [categorias, setCategorias] = useState<Categoria[]>([]);
+
+  // 2. PEGANDO A FUNÇÃO DO ZUSTAND: 
+  // Descomente a linha abaixo quando seu useCarrinho estiver criado
+  const adicionarAoCarrinho = useCarrinho((state) => state.adicionarAoCarrinho);
+
+  // Apenas uma função temporária para não quebrar seu código enquanto você não cria o Zustand:
 
   useEffect(() => {
     async function buscarProdutos() {
@@ -94,7 +103,12 @@ export default function Produtos() {
                     </span>
                   ))}
               </div>
-              <button className="bg-pink-400 hover:bg-pink-500 text-white py-2 px-4 rounded-md cursor-pointer mt-4">
+              
+              {/* CORREÇÃO AQUI: Mudamos de (produto) para (bolo) */}
+              <button 
+                className="bg-pink-400 hover:bg-pink-500 text-white py-2 px-4 rounded-md cursor-pointer mt-4"
+                onClick={() => adicionarAoCarrinho(bolo)}
+              >
                 Adicionar
               </button>
             </div>
@@ -104,7 +118,7 @@ export default function Produtos() {
               alt={bolo.nome}
               width={100}
               height={100}
-                loading="eager"
+              loading="eager"
             />
           </div>
         ))}
