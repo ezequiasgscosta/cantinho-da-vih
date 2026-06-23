@@ -94,6 +94,9 @@ export default function Produtos() {
                     </span>
                   ))}
               </div>
+              <button className="bg-pink-400 hover:bg-pink-500 text-white py-2 px-4 rounded-md cursor-pointer mt-4">
+                Adicionar
+              </button>
             </div>
 
             <Image

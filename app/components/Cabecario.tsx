@@ -13,8 +13,14 @@ export default function Cabecario() {
         />
       </div>
 
-      <div className="mr-8 w-5/7 text-2xl font-bold">
+      <div className="mr-8 w-3/7 text-2xl font-bold">
         <h1>Cantinho da Vih</h1>
+      </div>
+
+      <div >
+        <button className="bg-white text-pink-500 py-1 px-2 rounded-md hover:bg-gray-200">
+          carrinho
+        </button>
       </div>
     </header>
   );
