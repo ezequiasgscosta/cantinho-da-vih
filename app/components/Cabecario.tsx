@@ -1,7 +1,9 @@
 import Image from "next/image";
 import FotoPerfil from "../../public/globe.svg"; 
-
-export default function Cabecario() {
+interface CabecarioProps {
+  onAbrirCarrinho: () => void;
+}
+export default function Cabecario({onAbrirCarrinho}: CabecarioProps) {
   return (
     <header className="w-full  flex items-center sticky top-0 z-50 justify-between bg-pink-500 text-white p-4 shadow">
       <div className="ml-6">
@@ -18,7 +20,9 @@ export default function Cabecario() {
       </div>
 
       <div >
-        <button className="bg-white text-pink-500 py-1 px-2 rounded-md hover:bg-gray-200">
+        <button className="bg-white cursor-pointer text-pink-500 py-1 px-2 rounded-md hover:bg-gray-200"
+        onClick={onAbrirCarrinho}
+        >
           carrinho
         </button>
       </div>

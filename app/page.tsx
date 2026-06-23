@@ -1,12 +1,16 @@
 import Image from "next/image";
 import Atalhos from "./components/Atalhos"
 import Produtos from "./components/Produtos";
+import Carrinho from "./components/Carrinho";
+import { useState } from "react";
 export default function Home() {
+  const [onAbrirCarrinho, setonAbrirCarrinho] = useState(false)
   return (
     <div>
+      
       <Atalhos/>
 
-      <h1>teste de texto</h1>
+      
       <Produtos/>
     </div>
   );
