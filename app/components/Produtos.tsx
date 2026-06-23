@@ -15,9 +15,7 @@ interface Bolo {
   nome: string;
   preco: number;
   descricao: string;
-  categorias?: {
-    id: number;
-    nome: string}
+  categorias?: Categoria[];
 }
 
 export default function Produtos() {
@@ -33,19 +31,19 @@ export default function Produtos() {
           nome,
           preco,
           descricao,
-          categorias(
-          id,
-          nome
+          categorias (
+            id,
+            nome
           )
-          `);
+        `);
 
       if (error) {
         console.error("Erro ao conectar:", error.message);
-      } else {
-        setBolos(data || []);
-        console.log(JSON.stringify(data, null, 2));
-        console.log("Conectado com sucesso:", data);
+        return;
       }
+
+      setBolos((data || []) as Bolo[]);
+      console.log("Bolos carregados:", data);
     }
 
     async function buscarCategorias() {
@@ -55,10 +53,11 @@ export default function Produtos() {
 
       if (error) {
         console.error("Erro ao buscar categorias:", error.message);
-      } else {
-        setCategorias(data || []);
-        console.log("Categorias carregadas: hehehehe", data);
+        return;
       }
+
+      setCategorias(data || []);
+      console.log("Categorias carregadas:", data);
     }
 
     buscarProdutos();
@@ -69,8 +68,6 @@ export default function Produtos() {
     <div className="w-full min-h-screen border p-4">
       <h1 className="text-3xl font-bold mb-6">Bolos</h1>
 
-     
-
       <div className="grid gap-4">
         {bolos.map((bolo) => (
           <div
@@ -79,11 +76,24 @@ export default function Produtos() {
           >
             <div>
               <h2 className="font-bold text-xl">{bolo.nome}</h2>
+
               <p>{bolo.descricao}</p>
+
               <p className="text-lg font-medium">
                 Preço: R$ {bolo.preco}
               </p>
-              <p>{bolo.categorias?.nome}</p>
+
+              <div className="flex gap-2 mt-2">
+                {Array.isArray(bolo.categorias) &&
+                  bolo.categorias.map((cat) => (
+                    <span
+                      key={cat.id}
+                      className="bg-blue-500 text-white px-2 py-1 rounded-md text-sm"
+                    >
+                      {cat.nome}
+                    </span>
+                  ))}
+              </div>
             </div>
 
             <Image
@@ -91,6 +101,7 @@ export default function Produtos() {
               alt={bolo.nome}
               width={100}
               height={100}
+                loading="eager"
             />
           </div>
         ))}
