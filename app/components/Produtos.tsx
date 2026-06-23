@@ -17,7 +17,7 @@ interface Bolo {
   descricao: string;
   categorias?: {
     id: number;
-    nome: string}[],
+    nome: string}
 }
 
 export default function Produtos() {
@@ -43,6 +43,7 @@ export default function Produtos() {
         console.error("Erro ao conectar:", error.message);
       } else {
         setBolos(data || []);
+        console.log(JSON.stringify(data, null, 2));
         console.log("Conectado com sucesso:", data);
       }
     }
@@ -82,13 +83,7 @@ export default function Produtos() {
               <p className="text-lg font-medium">
                 Preço: R$ {bolo.preco}
               </p>
-              <p>{bolo.categorias?.map((cat)=>(
-                <span key={cat.id} className="bg-blue-500 text-white px-2 py-1 rounded-md">
-                  p{cat.nome}
-                </span>
-              )
-
-              )}</p>
+              <p>{bolo.categorias?.nome}</p>
             </div>
 
             <Image
