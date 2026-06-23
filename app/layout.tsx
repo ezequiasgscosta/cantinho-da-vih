@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import Cabecario from "./components/Cabecario"
-
+import Cabecario from "./components/Cabecario";
+import { UIProvider } from "./providers/UIProvider";
+import Carrinho from "./components/Carrinho"
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -15,14 +16,15 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "Cantinho da Vih",
-  description: "Doces artesanais, salgados e sobremesas! A melhor comida da cidade com entrega grátis, promoções e brindes imperdíveis. Venha aproveitar!",
+  description:
+    "Doces artesanais, salgados e sobremesas! A melhor comida da cidade com entrega grátis, promoções e brindes imperdíveis. Venha aproveitar!",
 };
 
 export default function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode;
-}>) {
+}) {
   return (
     <html
       lang="pt-br"
@@ -30,11 +32,17 @@ export default function RootLayout({
     >
       <body className="min-h-full flex flex-col">
 
-        <Cabecario/>
-        <main className="pt-1">
-        {children}
-        </main>
-        </body>
+        <UIProvider>
+
+          <Cabecario />
+          <Carrinho/>
+          <main className="pt-1">
+            {children}
+          </main>
+
+        </UIProvider>
+
+      </body>
     </html>
   );
 }
