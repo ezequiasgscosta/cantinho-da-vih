@@ -36,7 +36,7 @@ export default function RootLayout({
 
           <Cabecario />
           <Carrinho/>
-          <main className="pt-1">
+          <main className="pt-6 ">
             {children}
           </main>
 

@@ -72,20 +72,17 @@ export default function Produtos() {
     buscarCategorias();
   }, []);
 
-  // 🔥 AQUI está o agrupamento correto
   const bolosAgrupados = bolos.reduce((acc: any, bolo) => {
     if (!acc[bolo.categoria_id!]) {
       acc[bolo.categoria_id!] = [];
     }
-
     acc[bolo.categoria_id!].push(bolo);
-
     return acc;
   }, {});
 
   return (
-    <div className="w-full min-h-screen border p-4">
-      <h1 className="text-3xl font-bold mb-6">Bolos</h1>
+    /* 🌟 Adicionada a classe 'scroll-smooth' aqui para o Next.js rolar suavemente */
+    <div className="w-full min-h-screen p-4 scroll-smooth">
 
       <div className="grid gap-6">
         {Object.entries(bolosAgrupados).map(
@@ -95,9 +92,16 @@ export default function Produtos() {
                 ?.nome || "Categoria";
 
             return (
-              <div key={categoriaId} className="mb-6">
+              /* 🌟 O id agora recebe o nome exato da categoria (ex: id="Bolo")
+                🌟 'scroll-mt-6' evita que o título fique colado no topo ao rolar
+              */
+              <div 
+                key={categoriaId} 
+                id={nomeCategoria} 
+                className="mb-6 scroll-mt-6"
+              >
                 {/* TÍTULO DA CATEGORIA */}
-                <h2 className="text-2xl font-bold mb-3">
+                <h2 className="text-2xl text-pink-900  font-bold ml-5 ">
                   {nomeCategoria}
                 </h2>
 

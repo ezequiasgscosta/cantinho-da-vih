@@ -8,7 +8,7 @@ export default function Cabecario() {
   const { carrinhoAberto, setCarrinhoAberto } = useUI();
 
   return (
-    <header className="w-full flex items-center sticky top-0 z-50 justify-between bg-pink-500 text-white p-4 shadow">
+    <header className="w-full flex items-center sticky top-0 z-50 justify-between bg-pink-500 text-white pr-5 shadow">
       
       <div className="ml-6">
         <Image 
