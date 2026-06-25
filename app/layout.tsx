@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import Cabecario from "./components/Cabecario";
 import { UIProvider } from "./providers/UIProvider";
-import Carrinho from "./components/Carrinho"
+import LayoutContent from "./components/LayoutContent";
+
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -17,7 +17,7 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Cantinho da Vih",
   description:
-    "Doces artesanais, salgados e sobremesas! A melhor comida da cidade com entrega grátis, promoções e brindes imperdíveis. Venha aproveitar!",
+    "Doces artesanais, salgados e sobremesas! A melhor comida da cidade com entrega grátis, promoções e brindes imperdíveis.",
 };
 
 export default function RootLayout({
@@ -31,17 +31,11 @@ export default function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
-
         <UIProvider>
-
-          <Cabecario />
-          <Carrinho/>
-          <main className="pt-6 ">
+          <LayoutContent>
             {children}
-          </main>
-
+          </LayoutContent>
         </UIProvider>
-
       </body>
     </html>
   );
