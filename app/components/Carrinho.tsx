@@ -1,29 +1,54 @@
 "use client";
 
+import { useState } from "react"; // Adicionado para controlar o carregamento
 import { useUI } from "../providers/UIProvider";
-import { useCarrinho } from "../store/useCarrinho"; // Ajuste o caminho se necessário!
+import { useCarrinho } from "../store/useCarrinho";
 
 export default function Carrinho() {
   const { carrinhoAberto } = useUI();
-  
   const carrinho = useCarrinho((state) => state.carrinho);
   const removerDoCarrinho = useCarrinho((state) => state.removerDoCarrinho);
+  
+  const [carregando, setCarregando] = useState(false);
 
-  // Calcula o valor total usando as propriedades de cada bolo
-  const valorTotal = carrinho.reduce((acc, bolo) => {
-    return acc + bolo.preco * bolo.quantidade;
-  }, 0);
+  const valorTotal = carrinho.reduce((acc, bolo) => acc + bolo.preco * bolo.quantidade, 0);
+
+  // FUNÇÃO NOVA PARA LIDAR COM O PAGAMENTO
+  const handleFinalizarPedido = async () => {
+    if (carrinho.length === 0) return;
+    
+    setCarregando(true);
+    try {
+      const response = await fetch("./api/checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ itens: carrinho }),
+      });
+
+      const dados = await response.json();
+
+      if (dados.url) {
+        // Redireciona o usuário para a página de pagamento segura
+        window.location.href = dados.url;
+      } else {
+        alert("Erro ao iniciar o pagamento. Tente novamente.");
+      }
+    } catch (error) {
+      console.error(error);
+      alert("Houve um erro na conexão.");
+    } finally {
+      setCarregando(false);
+    }
+  };
 
   if (!carrinhoAberto) return null;
 
   return (
     <div className="fixed right-0 top-0 h-full w-80 bg-pink-50 mt-20 flex flex-col p-4 shadow-xl z-50 justify-between">
       
-      {/* Topo: Título e Lista embrulhados juntos */}
       <div className="flex flex-col flex-1 overflow-hidden">
         <h1 className="text-2xl font-bold mt-5 mb-4 text-center">Carrinho</h1>
         
-        {/* Lista de Bolos com rolagem interna bem definida */}
         <div className="w-full flex-1 overflow-y-auto pr-1 max-h-[calc(100vh-280px)]">
           {carrinho.length === 0 ? (
             <p className="text-center text-gray-500 mt-10">Seu carrinho está sem bolos 😢</p>
@@ -48,7 +73,6 @@ export default function Carrinho() {
                   <p className="font-bold text-sm text-pink-600">
                     R$ {(bolo.preco * bolo.quantidade).toFixed(2)}
                   </p>
-                  
                   <button
                     onClick={() => removerDoCarrinho(bolo.id)}
                     className="text-xs text-red-500 hover:text-red-700 font-medium underline cursor-pointer"
@@ -62,18 +86,19 @@ export default function Carrinho() {
         </div>
       </div>
 
-      {/* Rodapé: Total e Finalizar travados embaixo (Sempre visíveis) */}
       <div className="w-full border-t border-pink-200 pt-4 mt-auto bg-pink-50 pb-24">
         <div className="flex justify-between items-center mb-4 font-bold text-lg text-gray-800">
           <span>Total:</span>
           <span className="text-pink-600">R$ {valorTotal.toFixed(2)}</span>
         </div>
         
+        {/* BOTÃO ATUALIZADO */}
         <button 
-          className="w-full bg-pink-500 hover:bg-pink-600 text-white font-bold py-3 px-4 rounded-md shadow transition-colors text-center cursor-pointer block z-50 relative"
-          onClick={() => alert("Pedido de bolos finalizado! 🍰🎉")}
+          className="w-full bg-pink-500 hover:bg-pink-600 disabled:bg-gray-400 text-white font-bold py-3 px-4 rounded-md shadow transition-colors text-center cursor-pointer block z-50 relative"
+          onClick={handleFinalizarPedido}
+          disabled={carregando || carrinho.length === 0}
         >
-          Finalizar Pedido
+          {carregando ? "Processando..." : "Finalizar Pedido"}
         </button>
       </div>
 
