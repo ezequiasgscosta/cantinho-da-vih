@@ -34,8 +34,8 @@ export async function POST(request: Request) {
       payment_method_types: ["card"],
       line_items,
       mode: "payment",
-      success_url: `https://fantastic-sniffle-5gp5r7qxpgjx3pvjx-3000.app.github.dev/sucesso`,
-cancel_url: `https://fantastic-sniffle-5gp5r7qxpgjx3pvjx-3000.app.github.dev/`,
+      success_url: `https://cantinhodavih.vercel.app/sucesso`,
+cancel_url: `https://cantinhodavih.vercel.app/`,
 });
 
     return NextResponse.json({ url: session.url });
