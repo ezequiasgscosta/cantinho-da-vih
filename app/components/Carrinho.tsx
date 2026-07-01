@@ -3,8 +3,8 @@
 import { useState } from "react";
 import { useUI } from "../providers/UIProvider";
 import { useCarrinho } from "../store/useCarrinho";
-import { supabase } from "../../lib/supabase"; // 🌟 Importado o supabase
-import { useRouter } from "next/navigation"; // 🌟 Importado o useRouter
+import { supabase } from "../../lib/supabase"; 
+import { useRouter } from "next/navigation"; 
 
 export default function Carrinho() {
   const { carrinhoAberto } = useUI();
@@ -12,21 +12,55 @@ export default function Carrinho() {
   const removerDoCarrinho = useCarrinho((state) => state.removerDoCarrinho);
   
   const [carregando, setCarregando] = useState(false);
-  const router = useRouter(); // 🌟 Inicializado o router
+  const router = useRouter(); 
 
-  const valorTotal = carrinho.reduce((acc, bolo) => acc + bolo.preco * bolo.quantidade, 0);
+  // ESTADOS PARA O SISTEMA DE CUPONS
+  const [cupomTexto, setCupomTexto] = useState("");
+  const [descontoPorcentagem, setDescontoPorcentagem] = useState(0);
+  const [cupomAplicado, setCupomAplicado] = useState("");
+  const [erroCupom, setErroCupom] = useState("");
 
-  // FUNÇÃO ATUALIZADA PARA LIDAR COM VALIDAÇÃO E PAGAMENTO
+  // CÁLCULO DE VALORES
+  const subtotal = carrinho.reduce((acc, bolo) => acc + bolo.preco * bolo.quantidade, 0);
+  const valorDesconto = subtotal * (descontoPorcentagem / 100);
+  const valorTotal = subtotal - valorDesconto;
+
+  // FUNÇÃO PARA VALIDAR E APLICAR O CUPOM DO ADMIN
+  const handleAplicarCupom = async () => {
+    if (!cupomTexto.trim()) return;
+    setErroCupom("");
+
+    try {
+      const { data, error } = await supabase
+        .from("cupons")
+        .select("*")
+        .eq("codigo", cupomTexto.trim().toUpperCase())
+        .eq("ativo", true)
+        .single();
+
+      if (error || !data) {
+        setErroCupom("Cupom inválido ou expirado! 🏷️");
+        setDescontoPorcentagem(0);
+        setCupomAplicado("");
+        return;
+      }
+
+      setDescontoPorcentagem(data.desconto_porcentagem);
+      setCupomAplicado(data.codigo);
+    } catch (err) {
+      console.error(err);
+      setErroCupom("Erro ao validar cupom.");
+    }
+  };
+
   const handleFinalizarPedido = async () => {
     if (carrinho.length === 0) return;
     
     setCarregando(true);
     
     try {
-      // 1. 🌟 Verifica se existe uma sessão de usuário ativa
       const { data: { session } } = await supabase.auth.getSession();
 
-      // 2. 🌟 Se não houver sessão, barra e manda para a tela de login
       if (!session) {
         alert("Para concluir o seu pedido, por favor faça login ou crie uma conta.");
         router.push("/login");
@@ -34,17 +68,22 @@ export default function Carrinho() {
         return;
       }
 
-      // 3. Se estiver logado, continua o fluxo normal da API de checkout
+      // 🌟 SALVA O CARRINHO NO CACHE DE SEGURANÇA ANTES DO REDIRECIONAMENTO DO STRIPE
+      sessionStorage.setItem("carrinho_checkout", JSON.stringify(carrinho));
+
+      // Passa apenas as informações essenciais (o ID e a Quantidade serão validados pelo banco na API)
       const response = await fetch("./api/checkout", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ itens: carrinho }),
+        body: JSON.stringify({ 
+          itens: carrinho.map(item => ({ id: item.id, quantidade: item.quantidade })),
+          cupom: cupomAplicado || null
+        }),
       });
 
       const dados = await response.json();
 
       if (dados.url) {
-        // Redireciona o usuário para a página de pagamento segura
         window.location.href = dados.url;
       } else {
         alert("Erro ao iniciar o pagamento. Tente novamente.");
@@ -65,7 +104,8 @@ export default function Carrinho() {
       <div className="flex flex-col flex-1 overflow-hidden">
         <h1 className="text-2xl font-bold mt-5 mb-4 text-center">Carrinho</h1>
         
-        <div className="w-full flex-1 overflow-y-auto pr-1 max-h-[calc(100vh-280px)]">
+        {/* LISTAGEM DE ITENS */}
+        <div className="w-full flex-1 overflow-y-auto pr-1 max-h-[calc(100vh-360px)]">
           {carrinho.length === 0 ? (
             <p className="text-center text-gray-500 mt-10">Seu carrinho está sem bolos 😢</p>
           ) : (
@@ -75,14 +115,17 @@ export default function Carrinho() {
                 className="flex justify-between items-center p-2 border-b border-pink-200 w-full mb-2 bg-white rounded shadow-sm"
               >
                 <img 
-                  src={"img" in bolo ? (bolo.img as string) : "/window.svg"} 
+                  src={(bolo as any).imagem_url || (bolo as any).img || "/window.svg"}  
                   alt={bolo.nome} 
-                  className="w-12 h-12 object-cover rounded flex-shrink-0" 
+                  className="w-12 h-12 object-cover rounded flex-shrink-0 border border-gray-100" 
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).src = "/window.svg";
+                  }}
                 />
                 
                 <div className="flex-1 ml-3 min-w-0">
-                  <p className="font-semibold text-sm truncate">{bolo.nome}</p>
-                  <p className="text-xs text-gray-600">Qtd: {bolo.quantidade}</p>
+                  <p className="font-semibold text-sm truncate text-gray-800">{bolo.nome}</p>
+                  <p className="text-xs text-gray-500">Qtd: {bolo.quantidade}</p>
                 </div>
                 
                 <div className="flex flex-col items-end gap-1 flex-shrink-0">
@@ -102,14 +145,58 @@ export default function Carrinho() {
         </div>
       </div>
 
-      <div className="w-full border-t border-pink-200 pt-4 mt-auto bg-pink-50 pb-24">
-        <div className="flex justify-between items-center mb-4 font-bold text-lg text-gray-800">
-          <span>Total:</span>
-          <span className="text-pink-600">R$ {valorTotal.toFixed(2)}</span>
+      {/* FOOTER DO CARRINHO COM CUPOM E TOTAIS */}
+      <div className="w-full border-t border-pink-200 pt-3 mt-auto bg-pink-50 pb-24">
+        
+        {/* BLOCO DE CUPOM DE DESCONTO */}
+        {carrinho.length > 0 && (
+          <div className="mb-4">
+            <div className="flex gap-2">
+              <input 
+                type="text" 
+                placeholder="CUPOM"
+                value={cupomTexto}
+                onChange={(e) => setCupomTexto(e.target.value)}
+                className="flex-1 bg-white border border-pink-200 rounded px-3 py-1.5 text-xs font-semibold focus:outline-none focus:border-pink-400 uppercase text-gray-700 shadow-sm"
+              />
+              <button 
+                onClick={handleAplicarCupom}
+                className="bg-pink-400 hover:bg-pink-500 text-white font-bold px-3 py-1.5 rounded text-xs transition-colors cursor-pointer"
+              >
+                Aplicar
+              </button>
+            </div>
+            {erroCupom && <p className="text-[11px] text-red-500 mt-1 font-medium">{erroCupom}</p>}
+            {cupomAplicado && (
+              <p className="text-[11px] text-green-600 mt-1 font-bold">
+                ✓ Cupom {cupomAplicado} applied ({descontoPorcentagem}% OFF)
+              </p>
+            )}
+          </div>
+        )}
+
+        {/* RESUMO FINANCEIRO */}
+        <div className="space-y-1.5 mb-4 text-sm text-gray-600">
+          {descontoPorcentagem > 0 && (
+            <>
+              <div className="flex justify-between">
+                <span>Subtotal:</span>
+                <span>R$ {subtotal.toFixed(2)}</span>
+              </div>
+              <div className="flex justify-between text-green-600 font-medium">
+                <span>Desconto:</span>
+                <span>- R$ {valorDesconto.toFixed(2)}</span>
+              </div>
+            </>
+          )}
+          <div className="flex justify-between items-center font-bold text-lg text-gray-800 pt-1">
+            <span>Total:</span>
+            <span className="text-pink-600">R$ {valorTotal.toFixed(2)}</span>
+          </div>
         </div>
         
         <button 
-          className="w-full bg-pink-500 hover:bg-pink-600 disabled:bg-gray-400 text-white font-bold py-3 px-4 rounded-md shadow transition-colors text-center cursor-pointer block z-50 relative"
+          className="w-full bg-pink-500 hover:bg-pink-600 disabled:bg-gray-400 text-white font-bold py-3 px-4 rounded-md shadow transition-colors text-center cursor-pointer block z-50 relative text-sm"
           onClick={handleFinalizarPedido}
           disabled={carregando || carrinho.length === 0}
         >

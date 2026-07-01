@@ -6,23 +6,17 @@ import { supabase } from "../../lib/supabase";
 import { useEffect, useState } from "react";
 import { useCarrinho } from "../store/useCarrinho";
 
-interface Categoria {
-  id: number;
-  nome: string;
-}
-
 interface Bolo {
   id: number;
   nome: string;
   preco: number;
   descricao: string;
-  categoria_id?: number;
-  categorias?: Categoria[];
+  categoria: string; // Adaptado para receber a string da categoria vinda do Admin
+  imagem_url?: string; // Coluna adicionada para exibir as fotos cadastradas
 }
 
 export default function Produtos() {
   const [bolos, setBolos] = useState<Bolo[]>([]);
-  const [categorias, setCategorias] = useState<Categoria[]>([]);
 
   const adicionarAoCarrinho = useCarrinho(
     (state) => state.adicionarAoCarrinho
@@ -30,22 +24,11 @@ export default function Produtos() {
 
   useEffect(() => {
     async function buscarProdutos() {
+      // Puxa os dados diretamente da tabela 'produtos' unificada
       const { data, error } = await supabase
-        .from("bolo")
-        .select(
-          `
-          id,
-          nome,
-          preco,
-          descricao,
-          categoria_id,
-          categorias (
-            id,
-            nome
-          )
-        `
-        )
-        .order("categoria_id", { ascending: true });
+        .from("produtos") 
+        .select("id, nome, preco, descricao, categoria, imagem_url")
+        .order("categoria", { ascending: true });
 
       if (error) {
         console.error("Erro ao conectar:", error.message);
@@ -55,96 +38,78 @@ export default function Produtos() {
       setBolos((data || []) as Bolo[]);
     }
 
-    async function buscarCategorias() {
-      const { data, error } = await supabase
-        .from("categorias")
-        .select("*");
-
-      if (error) {
-        console.error("Erro ao buscar categorias:", error.message);
-        return;
-      }
-
-      setCategorias(data || []);
-    }
-
     buscarProdutos();
-    buscarCategorias();
   }, []);
 
+  // Agrupa os bolos usando diretamente a string do nome da categoria
   const bolosAgrupados = bolos.reduce((acc: any, bolo) => {
-    if (!acc[bolo.categoria_id!]) {
-      acc[bolo.categoria_id!] = [];
+    const catNome = bolo.categoria || "Geral";
+    if (!acc[catNome]) {
+      acc[catNome] = [];
     }
-    acc[bolo.categoria_id!].push(bolo);
+    acc[catNome].push(bolo);
     return acc;
   }, {});
 
   return (
-    /* 🌟 Adicionada a classe 'scroll-smooth' aqui para o Next.js rolar suavemente */
     <div className="w-full min-h-screen p-4 scroll-smooth">
-
       <div className="grid gap-6">
-        {Object.entries(bolosAgrupados).map(
-          ([categoriaId, bolosDaCategoria]) => {
-            const nomeCategoria =
-              categorias.find((c) => c.id === Number(categoriaId))
-                ?.nome || "Categoria";
+        {Object.entries(bolosAgrupados).map(([nomeCategoria, bolosDaCategoria]) => {
+          return (
+            <div 
+              key={nomeCategoria} 
+              id={nomeCategoria} 
+              className="mb-6 scroll-mt-6"
+            >
+              {/* TÍTULO DA CATEGORIA (DINÂMICO) */}
+              <h2 className="text-2xl text-pink-900 font-bold ml-5 mb-4">
+                {nomeCategoria}
+              </h2> 
 
-            return (
-              /* 🌟 O id agora recebe o nome exato da categoria (ex: id="Bolo")
-                🌟 'scroll-mt-6' evita que o título fique colado no topo ao rolar
-              */
-              <div 
-                key={categoriaId} 
-                id={nomeCategoria} 
-                className="mb-6 scroll-mt-6"
-              >
-                {/* TÍTULO DA CATEGORIA */}
-                <h2 className="text-2xl text-pink-900  font-bold ml-5 ">
-                  {nomeCategoria}
-                </h2>
+              {/* BOLOS DA CATEGORIA */}
+              <div className="grid gap-4">
+                {(bolosDaCategoria as Bolo[]).map((bolo) => (
+                  <div
+                    key={bolo.id}
+                    className="bg-white border border-black/10 rounded-xl p-4 flex items-center justify-between gap-4 shadow-sm"
+                  >
+                    <div className="flex-1">
+                      <h3 className="font-bold text-xl text-gray-800">
+                        {bolo.nome}
+                      </h3>
 
-                {/* BOLOS DA CATEGORIA */}
-                <div className="grid gap-4">
-                  {(bolosDaCategoria as Bolo[]).map((bolo) => (
-                    <div
-                      key={bolo.id}
-                      className="border border-black/10 rounded-lg p-4 flex items-center justify-between"
-                    >
-                      <div>
-                        <h3 className="font-bold text-xl">
-                          {bolo.nome}
-                        </h3>
+                      <p className="text-sm text-gray-500 my-1">{bolo.descricao || "Sem descrição disponível."}</p>
 
-                        <p>{bolo.descricao}</p>
+                      <p className="text-lg font-bold text-pink-600 mt-2">
+                        R$ {Number(bolo.preco).toFixed(2)}
+                      </p>
 
-                        <p className="text-lg font-medium">
-                          Preço: R$ {bolo.preco}
-                        </p>
+                      <button
+                        className="bg-pink-400 hover:bg-pink-500 text-white font-semibold py-2 px-5 rounded-xl cursor-pointer mt-4 transition-colors text-xs"
+                        onClick={() => adicionarAoCarrinho(bolo)}
+                      >
+                        Adicionar ao Carrinho 🛒
+                      </button>
+                    </div>
 
-                        <button
-                          className="bg-pink-400 hover:bg-pink-500 text-white py-2 px-4 rounded-md cursor-pointer mt-4"
-                          onClick={() => adicionarAoCarrinho(bolo)}
-                        >
-                          Adicionar
-                        </button>
-                      </div>
-
-                      <Image
-                        src={ImageIlustrativa}
+                    {/* IMAGEM DINÂMICA CADASTRADA NO ADMIN */}
+                    <div className="w-24 h-24 relative flex-shrink-0">
+                      <img
+                        src={bolo.imagem_url || "https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=500"}
                         alt={bolo.nome}
-                        width={100}
-                        height={100}
-                        loading="eager"
+                        className="w-full h-full object-cover rounded-xl border border-gray-100"
+                        onError={(e) => {
+                          // Caso o link da imagem quebre, substitui pela ilustrativa padrão
+                          (e.target as HTMLImageElement).src = ImageIlustrativa;
+                        }}
                       />
                     </div>
-                  ))}
-                </div>
+                  </div>
+                ))}
               </div>
-            );
-          }
-        )}
+            </div>
+          );
+        })}
       </div>
     </div>
   );

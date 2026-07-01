@@ -7,12 +7,14 @@ interface ItemCarrinho {
   preco: number;
   descricao: string;
   quantidade: number;
+  imagem_url?: string; // 🌟 Propriedade adicionada para evitar erros com o painel admin
 }
 
 interface CarrinhoState {
   carrinho: ItemCarrinho[];
   adicionarAoCarrinho: (bolo: Omit<ItemCarrinho, "quantidade">) => void;
   removerDoCarrinho: (id: number) => void;
+  limparCarrinho: () => void; // 🌟 Assinatura da função adicionada na interface
 }
 
 export const useCarrinho = create<CarrinhoState>()(
@@ -42,6 +44,12 @@ export const useCarrinho = create<CarrinhoState>()(
       removerDoCarrinho: (id) =>
         set((state) => ({
           carrinho: state.carrinho.filter((item) => item.id !== id),
+        })),
+
+      // 🌟 Função implementada para esvaziar o carrinho e atualizar o LocalStorage
+      limparCarrinho: () =>
+        set(() => ({
+          carrinho: [],
         })),
     }),
     {
