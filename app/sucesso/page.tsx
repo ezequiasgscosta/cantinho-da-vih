@@ -7,23 +7,19 @@ import Link from "next/link";
 
 export default function Sucesso() {
   const limparCarrinho = useCarrinho((state) => state.limparCarrinho);
+  const carrinhoGlobal = useCarrinho((state) => state.carrinho);
   const [statusEnvio, setStatusEnvio] = useState("processando");
+  const [detalheErro, setDetalheErro] = useState("");
 
   useEffect(() => {
     async function registrarPedidoNoBanco() {
       try {
-        // 1. Tenta buscar os itens salvos no sessionStorage de segurança antes do checkout
+        // 1. Tenta buscar do sessionStorage, senão pega como fallback o carrinho do estado global
         const carrinhoSalvo = sessionStorage.getItem("carrinho_checkout");
-        
-        if (!carrinhoSalvo) {
-          // Se não houver nada no cache, o pedido já pode ter sido enviado em um refresh de página
-          setStatusEnvio("concluido");
-          return;
-        }
+        const itensCarrinho = carrinhoSalvo ? JSON.parse(carrinhoSalvo) : carrinhoGlobal;
 
-        const itensCarrinho = JSON.parse(carrinhoSalvo);
-
-        if (itensCarrinho.length === 0) {
+        // Se realmente não houver produtos em nenhum lugar, avisa que está concluído (pode ser um F5)
+        if (!itensCarrinho || itensCarrinho.length === 0) {
           setStatusEnvio("concluido");
           return;
         }
@@ -40,7 +36,7 @@ export default function Sucesso() {
         // 4. Calcula o total final
         const totalPedido = itensCarrinho.reduce((acc: number, item: any) => acc + item.preco * item.quantidade, 0);
 
-        // 5. Insere diretamente na tabela do Supabase
+        // 5. Insere na tabela 'pedidos' do Supabase
         const { error } = await supabase.from("pedidos").insert([
           {
             cliente: clienteEmail,
@@ -51,21 +47,25 @@ export default function Sucesso() {
           },
         ]);
 
-        if (error) throw error;
+        // Se o Supabase rejeitar (por nomes de colunas errados), cai direto no catch!
+        if (error) {
+          setDetalheErro(`Erro no Supabase: ${error.message}`);
+          throw error;
+        }
 
-        // Limpa o carrinho global e o cache temporário para evitar duplicar em f5
+        // Limpa tudo apenas APÓS confirmar que salvou com sucesso no banco
         limparCarrinho();
         sessionStorage.removeItem("carrinho_checkout");
         
         setStatusEnvio("concluido");
-      } catch (err) {
+      } catch (err: any) {
         console.error("Erro ao enviar pedido para o admin:", err);
         setStatusEnvio("erro");
       }
     }
 
     registrarPedidoNoBanco();
-  }, [limparCarrinho]);
+  }, [limparCarrinho, carrinhoGlobal]);
 
   return (
     <div className="w-full min-h-screen flex flex-col items-center justify-center bg-pink-50 p-6 text-center">
@@ -96,11 +96,16 @@ export default function Sucesso() {
         {statusEnvio === "erro" && (
           <>
             <span className="text-5xl">⚠️</span>
-            <h1 className="text-2xl font-bold text-red-500 mt-4 mb-2">Quase lá!</h1>
-            <p className="text-gray-600 mb-6">
-              Seu pagamento foi processado, mas houve uma oscilação ao atualizar o painel.
+            <h1 className="text-2xl font-bold text-red-500 mt-4 mb-2">Erro ao Registrar</h1>
+            <p className="text-gray-600 text-sm mb-4">
+              Seu pagamento foi aprovado, mas não conseguimos atualizar a planilha da cozinha automaticamente.
             </p>
-            <Link href="/" className="text-pink-500 underline font-medium">
+            {detalheErro && (
+              <p className="bg-red-50 text-red-600 font-mono text-[11px] p-2 rounded mb-4 text-left border border-red-100">
+                {detalheErro}
+              </p>
+            )}
+            <Link href="/" className="text-pink-500 underline font-medium text-sm">
               Voltar ao início
             </Link>
           </>
@@ -108,4 +113,4 @@ export default function Sucesso() {
       </div>
     </div>
   );
-}
+}git  
