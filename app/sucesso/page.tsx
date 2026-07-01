@@ -14,11 +14,10 @@ export default function Sucesso() {
   useEffect(() => {
     async function registrarPedidoNoBanco() {
       try {
-        // 1. Tenta buscar do sessionStorage, senão pega como fallback o carrinho do estado global
+        // 1. Tenta buscar do sessionStorage, senão usa o carrinho global
         const carrinhoSalvo = sessionStorage.getItem("carrinho_checkout");
         const itensCarrinho = carrinhoSalvo ? JSON.parse(carrinhoSalvo) : carrinhoGlobal;
 
-        // Se realmente não houver produtos em nenhum lugar, avisa que está concluído (pode ser um F5)
         if (!itensCarrinho || itensCarrinho.length === 0) {
           setStatusEnvio("concluido");
           return;
@@ -36,24 +35,22 @@ export default function Sucesso() {
         // 4. Calcula o total final
         const totalPedido = itensCarrinho.reduce((acc: number, item: any) => acc + item.preco * item.quantidade, 0);
 
-        // 5. Insere na tabela 'pedidos' do Supabase
+        // 5. Insere usando os nomes EXATOS das suas colunas do banco
         const { error } = await supabase.from("pedidos").insert([
           {
-            cliente: clienteEmail,
-            itens: descricaoItens,
+            nome_cliente: clienteEmail,   // 🌟 Corrigido!
+            descricao_bolo: descricaoItens, // 🌟 Corrigido!
             total: totalPedido,
-            status: "Pendente", 
-            criado_em: new Date().toISOString(),
+            status: "Pendente"
           },
         ]);
 
-        // Se o Supabase rejeitar (por nomes de colunas errados), cai direto no catch!
         if (error) {
           setDetalheErro(`Erro no Supabase: ${error.message}`);
           throw error;
         }
 
-        // Limpa tudo apenas APÓS confirmar que salvou com sucesso no banco
+        // Limpa tudo após confirmar o salvamento
         limparCarrinho();
         sessionStorage.removeItem("carrinho_checkout");
         
@@ -98,7 +95,7 @@ export default function Sucesso() {
             <span className="text-5xl">⚠️</span>
             <h1 className="text-2xl font-bold text-red-500 mt-4 mb-2">Erro ao Registrar</h1>
             <p className="text-gray-600 text-sm mb-4">
-              Seu pagamento foi aprovado, mas não conseguimos atualizar a planilha da cozinha automaticamente.
+              Houve uma oscilação ao atualizar o painel do administrador.
             </p>
             {detalheErro && (
               <p className="bg-red-50 text-red-600 font-mono text-[11px] p-2 rounded mb-4 text-left border border-red-100">
