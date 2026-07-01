@@ -52,7 +52,7 @@ export default function Produtos() {
   }, {});
 
   return (
-    <div className="w-full min-h-screen p-4 scroll-smooth">
+    <div className="w-full min-h-screen p-4 pt-10 scroll-smooth">
       <div className="grid gap-6">
         {Object.entries(bolosAgrupados).map(([nomeCategoria, bolosDaCategoria]) => {
           return (
