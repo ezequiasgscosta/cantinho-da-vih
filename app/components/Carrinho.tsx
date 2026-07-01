@@ -1,8 +1,10 @@
 "use client";
 
-import { useState } from "react"; // Adicionado para controlar o carregamento
+import { useState } from "react";
 import { useUI } from "../providers/UIProvider";
 import { useCarrinho } from "../store/useCarrinho";
+import { supabase } from "../../lib/supabase"; // 🌟 Importado o supabase
+import { useRouter } from "next/navigation"; // 🌟 Importado o useRouter
 
 export default function Carrinho() {
   const { carrinhoAberto } = useUI();
@@ -10,15 +12,29 @@ export default function Carrinho() {
   const removerDoCarrinho = useCarrinho((state) => state.removerDoCarrinho);
   
   const [carregando, setCarregando] = useState(false);
+  const router = useRouter(); // 🌟 Inicializado o router
 
   const valorTotal = carrinho.reduce((acc, bolo) => acc + bolo.preco * bolo.quantidade, 0);
 
-  // FUNÇÃO NOVA PARA LIDAR COM O PAGAMENTO
+  // FUNÇÃO ATUALIZADA PARA LIDAR COM VALIDAÇÃO E PAGAMENTO
   const handleFinalizarPedido = async () => {
     if (carrinho.length === 0) return;
     
     setCarregando(true);
+    
     try {
+      // 1. 🌟 Verifica se existe uma sessão de usuário ativa
+      const { data: { session } } = await supabase.auth.getSession();
+
+      // 2. 🌟 Se não houver sessão, barra e manda para a tela de login
+      if (!session) {
+        alert("Para concluir o seu pedido, por favor faça login ou crie uma conta.");
+        router.push("/login");
+        setCarregando(false);
+        return;
+      }
+
+      // 3. Se estiver logado, continua o fluxo normal da API de checkout
       const response = await fetch("./api/checkout", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -92,7 +108,6 @@ export default function Carrinho() {
           <span className="text-pink-600">R$ {valorTotal.toFixed(2)}</span>
         </div>
         
-        {/* BOTÃO ATUALIZADO */}
         <button 
           className="w-full bg-pink-500 hover:bg-pink-600 disabled:bg-gray-400 text-white font-bold py-3 px-4 rounded-md shadow transition-colors text-center cursor-pointer block z-50 relative"
           onClick={handleFinalizarPedido}
