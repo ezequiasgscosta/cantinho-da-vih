@@ -53,7 +53,7 @@ export default function Produtos() {
 
   return (
     <div className="w-full min-h-screen p-4 pt-10 scroll-smooth">
-      <div className="grid gap-6">
+      <div className="grid gap-6 2xl:mx-80">
         {Object.entries(bolosAgrupados).map(([nomeCategoria, bolosDaCategoria]) => {
           return (
             <div 
@@ -61,8 +61,8 @@ export default function Produtos() {
               id={nomeCategoria} 
               className="mb-6 scroll-mt-6"
             >
-              {/* TÍTULO DA CATEGORIA (DINÂMICO) */}
-              <h2 className="text-2xl text-pink-900 font-bold ml-5 mb-4">
+              {/* TÍTULO DA CATEGORIA (DINÂMICO) - Aumenta em telas 2xl */}
+              <h2 className="text-2xl 2xl:text-4xl text-pink-900 font-bold ml-5 mb-4 transition-all">
                 {nomeCategoria}
               </h2> 
 
@@ -74,26 +74,31 @@ export default function Produtos() {
                     className="bg-white border border-black/10 rounded-xl p-4 flex items-center justify-between gap-4 shadow-sm"
                   >
                     <div className="flex-1">
-                      <h3 className="font-bold text-xl text-gray-800">
+                      {/* Nome do bolo aumenta em telas 2xl */}
+                      <h3 className="font-bold text-xl 2xl:text-2xl text-gray-800">
                         {bolo.nome}
                       </h3>
 
-                      <p className="text-sm text-gray-500 my-1">{bolo.descricao || "Sem descrição disponível."}</p>
+                      {/* Descrição com largura controlada e aumenta em telas 2xl para melhor leitura */}
+                      <p className="text-sm 2xl:text-base text-gray-500 my-1 max-w-prose">
+                        {bolo.descricao || "Sem descrição disponível."}
+                      </p>
 
-                      <p className="text-lg font-bold text-pink-600 mt-2">
+                      <p className="text-lg 2xl:text-xl font-bold text-pink-600 mt-2">
                         R$ {Number(bolo.preco).toFixed(2)}
                       </p>
 
+                      {/* Botão com efeito de clique suave e responsividade */}
                       <button
-                        className="bg-pink-400 hover:bg-pink-500 text-white font-semibold py-2 px-5 rounded-xl cursor-pointer mt-4 transition-colors text-xs"
+                        className="bg-pink-400 hover:bg-pink-500 active:bg-pink-600 text-white font-semibold py-2 px-5 rounded-xl cursor-pointer mt-4 transition-all duration-150 active:scale-95 text-xs 2xl:text-sm"
                         onClick={() => adicionarAoCarrinho(bolo)}
                       >
                         Adicionar ao Carrinho 🛒
                       </button>
                     </div>
 
-                    {/* IMAGEM DINÂMICA CADASTRADA NO ADMIN */}
-                    <div className="w-24 h-24 relative flex-shrink-0">
+                    {/* IMAGEM DINÂMICA CADASTRADA NO ADMIN - Aumenta em telas 2xl */}
+                    <div className="w-24 h-24 2xl:w-32 2xl:h-32 relative flex-shrink-0 transition-all">
                       <img
                         src={bolo.imagem_url || "https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=500"}
                         alt={bolo.nome}
