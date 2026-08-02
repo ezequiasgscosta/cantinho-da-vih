@@ -35,14 +35,23 @@
 &nbsp;&nbsp;Nex.js  
 
 <h3>Back-end</h3>
-&nbsp;&nbsp;Stirpe (API De Pagamento)
-&nbsp;&nbsp;Supabase Auth (Autenticação)
-&nbsp;&nbsp;Banco de Dados (Supabase "PostgreSQL")
+&nbsp;&nbsp;Stirpe (API De Pagamento)  
+&nbsp;&nbsp;Supabase Auth (Autenticação)  
+&nbsp;&nbsp;Banco de Dados (Supabase "PostgreSQL")  
 
 <h2 align="center">COMO USAR</h2>
 
-1.Clone o Repositorio
-2.Crie uma conta no SupaBase
-3.Crie As Tabelas no SupaBase Com o Mesmo Nome que nas Pastas
-4.Adicione as CHAVES do SupaBase no .env
+1.Clone o Repositorio   
+2.Crie uma conta no SupaBase  
+3.Crie As Tabelas no SupaBase Com o Mesmo Nome que nas Pastas  
+4.Adicione as CHAVES do SupaBase no .env  
 5.
+
+<h2>ACESSE ONLINE</h2>
+
+<p>Cliente Clique Aqui</p> [Cantinho da Vih Cliente](https://www.cantinhodavih.vercel.ap)
+
+<p>Adm Clique Aqui</p> [Cantinho da Vih](https://www.cantinhoadm.vercel.app)
+
+<h2>Entre em Contato</h2>
+Email - ezequiasgscosta@gmail.com
