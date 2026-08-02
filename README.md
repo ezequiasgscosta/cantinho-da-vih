@@ -49,8 +49,8 @@
 
 <h2>ACESSE ONLINE</h2>
 
-<p>Cliente Clique Aqui https://www.cantinhodavih.vercel.ap</p>
-<p>Adm Clique Aqui https://www.cantinhoadm.vercel.app</p>
+<p>Cliente Clique Aqui https://cantinhodavih.vercel.app/</p>
+<p>Adm Clique Aqui https://cantinhoadm.vercel.app/</p>
 
 <h2>Entre em Contato</h2>
 Email - ezequiasgscosta@gmail.com
