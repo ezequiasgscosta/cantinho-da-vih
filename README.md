@@ -35,9 +35,9 @@
 &nbsp;&nbsp;Nex.js  
 
 <h3>Back-end</h3>
-&nbsp;&nbsp;Stirpe (API De Pagamento)  
-&nbsp;&nbsp;Supabase Auth (Autenticação)  
-&nbsp;&nbsp;Banco de Dados (Supabase "PostgreSQL")  
+&nbsp;&nbsp;Stirpe (API De Pagamento)     
+&nbsp;&nbsp;Supabase Auth (Autenticação)      
+&nbsp;&nbsp;Banco de Dados (Supabase "PostgreSQL")   
 
 <h2 align="center">COMO USAR</h2>
 
