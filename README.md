@@ -15,6 +15,19 @@
 
 <h2 align="center">FUNCIONALIDADES ADMINISTRATIVAS</h2>
 
-&nbsp;&nbsp;1-Cadastrar Produtos  
-&nbsp;&nbsp;2-Editar Produtos
-&nbsp;&nbsp;3-Excluir Produtos
+&nbsp;&nbsp;1-Cadastrar Produtos    
+&nbsp;&nbsp;2-Editar Produtos  
+&nbsp;&nbsp;3-Excluir Produtos  
+&nbsp;&nbsp;4-Adicionar funcionarios  
+&nbsp;&nbsp;5-Remover Funcionarios  
+&nbsp;&nbsp;6-Atualizar Status Do Pedido  
+&nbsp;&nbsp;7-Dashboard Completo da Loja  
+&nbsp;&nbsp;8-Metricas De venda   
+
+
+<h2 align="center">TECNOLOGIAS UTILIZADAS</h2>
+
+<h3>Front-End</h3>
+
+&nbsp;&nbsp;Canva Typscript Tailwind CSS Nex.js   
+&nbsp;&nbsp;
