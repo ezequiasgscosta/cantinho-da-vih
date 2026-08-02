@@ -29,5 +29,20 @@
 
 <h3>Front-End</h3>
 
-&nbsp;&nbsp;Canva Typscript Tailwind CSS Nex.js   
-&nbsp;&nbsp;
+&nbsp;&nbsp;Canva  
+&nbsp;&nbsp;Typscript   
+&nbsp;&nbsp;Tailwind  CSS  
+&nbsp;&nbsp;Nex.js  
+
+<h3>Back-end</h3>
+&nbsp;&nbsp;Stirpe (API De Pagamento)
+&nbsp;&nbsp;Supabase Auth (Autenticação)
+&nbsp;&nbsp;Banco de Dados (Supabase "PostgreSQL")
+
+<h2 align="center">COMO USAR</h2>
+
+1.Clone o Repositorio
+2.Crie uma conta no SupaBase
+3.Crie As Tabelas no SupaBase Com o Mesmo Nome que nas Pastas
+4.Adicione as CHAVES do SupaBase no .env
+5.
