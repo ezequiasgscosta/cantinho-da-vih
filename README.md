@@ -44,8 +44,10 @@
 1.Clone o Repositorio   
 2.Crie uma conta no SupaBase  
 3.Crie As Tabelas no SupaBase Com o Mesmo Nome que nas Pastas  
-4.Adicione as CHAVES do SupaBase no .env  
-5.
+4.Copie `.env.example` para `.env.local` e preencha `NEXT_PUBLIC_SUPABASE_URL` e `NEXT_PUBLIC_SUPABASE_ANON_KEY` com os valores de **Settings > API** do seu projeto Supabase.
+5.Na Vercel, adicione também `SUPABASE_SERVICE_ROLE_KEY` e `CRON_SECRET` como variáveis de ambiente.
+
+O projeto possui um cron diário em `/api/keep-alive` que consulta o banco usando a chave de serviço. Isso mantém o projeto Supabase ativo quando o deploy da Vercel estiver publicado. A `SUPABASE_SERVICE_ROLE_KEY` nunca deve ser usada no navegador.
 
 <h2>ACESSE ONLINE</h2>
 
