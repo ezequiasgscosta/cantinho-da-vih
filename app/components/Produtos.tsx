@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import ImageIlustrativa from "@/public/window.svg";
 import { supabase } from "../../lib/supabase";
 import { useEffect, useState } from "react";
@@ -14,6 +13,57 @@ interface Bolo {
   categoria: string; // Adaptado para receber a string da categoria vinda do Admin
   imagem_url?: string; // Coluna adicionada para exibir as fotos cadastradas
 }
+
+const produtosFicticios: Bolo[] = [
+  {
+    id: -1,
+    nome: "Bolo de Chocolate Belga",
+    preco: 32.9,
+    descricao: "Massa fofinha, recheio cremoso e cobertura de chocolate intenso.",
+    categoria: "Bolos",
+    imagem_url: "https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=800&q=80",
+  },
+  {
+    id: -2,
+    nome: "Red Velvet com Frutas Vermelhas",
+    preco: 38.5,
+    descricao: "Camadas macias com creme suave e um toque especial de frutas.",
+    categoria: "Bolos",
+    imagem_url: "https://images.unsplash.com/photo-1586788680434-30d324b2d46f?w=800&q=80",
+  },
+  {
+    id: -3,
+    nome: "Brigadeiro Gourmet",
+    preco: 12.9,
+    descricao: "Brigadeiros artesanais finalizados com granulado belga.",
+    categoria: "Doces",
+    imagem_url: "https://images.unsplash.com/photo-1582058091505-f87a2e55a40f?w=800&q=80",
+  },
+  {
+    id: -4,
+    nome: "Cheesecake de Morango",
+    preco: 16.9,
+    descricao: "Base crocante, creme delicado e calda artesanal de morango.",
+    categoria: "Sobremesas",
+    imagem_url: "https://images.unsplash.com/photo-1565958011703-44f9829ba187?w=800&q=80",
+  },
+  {
+    id: -5,
+    nome: "Coxinha Cremosa",
+    preco: 8.5,
+    descricao: "Massa douradinha com recheio cremoso de frango temperado.",
+    categoria: "Salgados",
+    imagem_url: "https://images.unsplash.com/photo-1601050690597-df0568f70950?w=800&q=80",
+  },
+  {
+    id: -6,
+    nome: "Cookie Triplo Chocolate",
+    preco: 9.9,
+    descricao: "Cookie macio por dentro, crocante por fora e cheio de chocolate.",
+    categoria: "Doces",
+    imagem_url: "https://images.unsplash.com/photo-1499636136210-6f4ee915583e?w=800&q=80",
+  },
+];
 
 export default function Produtos() {
   const [bolos, setBolos] = useState<Bolo[]>([]);
@@ -32,17 +82,18 @@ export default function Produtos() {
 
       if (error) {
         console.error("Erro ao conectar:", error.message);
+        setBolos(produtosFicticios);
         return;
       }
 
-      setBolos((data || []) as Bolo[]);
+      setBolos(data && data.length > 0 ? (data as Bolo[]) : produtosFicticios);
     }
 
     buscarProdutos();
   }, []);
 
   // Agrupa os bolos usando diretamente a string do nome da categoria
-  const bolosAgrupados = bolos.reduce((acc: any, bolo) => {
+  const bolosAgrupados = bolos.reduce<Record<string, Bolo[]>>((acc, bolo) => {
     const catNome = bolo.categoria || "Geral";
     if (!acc[catNome]) {
       acc[catNome] = [];
